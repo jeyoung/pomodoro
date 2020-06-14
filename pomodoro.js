@@ -71,25 +71,29 @@ class Controller {
         this.element = element;
         this.pomodoro = pomodoro;
         this.refreshing = null;
+        this.refreshInterval = (this.element !== null) ? 1000/60 : 1000;
     }
 
     initialize() {
-        this.refreshing = setTimeout(this.refreshed.bind(this), 1000/24);
+        this.refreshing = setTimeout(this.refreshed.bind(this), this.refreshInterval);
         this.pomodoro.started();
     }
 
     refreshed() {
-        const stateDiv = this.element.querySelector('div#state');
-        stateDiv.innerHTML = `${Object.entries(this.pomodoro.STATES).find(entry => entry[1] === this.pomodoro.currentState)[0]}`;
-
         const tmp = new Date(this.pomodoro.timerCountdownInMs);
         const minutes = '0' + tmp.getMinutes();
         const seconds = '0' + tmp.getSeconds();
-        const timerDiv = this.element.querySelector('div#timer');
-        timerDiv.innerHTML = `${minutes.substring(minutes.length - 2)}:${seconds.substring(seconds.length - 2)}`;
+        const output = `${minutes.substring(minutes.length - 2)}:${seconds.substring(seconds.length - 2)}`;
+        if (this.element !== null) {
+            const timerDiv = this.element.querySelector('div#timer');
+            const stateDiv = this.element.querySelector('div#state');
+            stateDiv.innerHTML = `${Object.entries(this.pomodoro.STATES).find(entry => entry[1] === this.pomodoro.currentState)[0]}`;
+            timerDiv.innerHTML = output;
+        }
+        console.log(output);
 
         if (this.pomodoro.currentState !== this.pomodoro.STATES.STOPPED) {
-            this.refreshing = setTimeout(this.refreshed.bind(this), 1000/60);
+            this.refreshing = setTimeout(this.refreshed.bind(this), this.refreshInterval);
         } else {
             clearTimeout(this.refreshing);
         }
@@ -101,5 +105,5 @@ if (typeof window === 'object') {
         new Controller(this.document.querySelector('body div'), new Pomodoro()).initialize();
     });
 } else {
-    new Pomodoro().started();
+    new Controller(null, new Pomodoro()).initialize();
 }
