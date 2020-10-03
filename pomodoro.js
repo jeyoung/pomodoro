@@ -32,7 +32,7 @@ class Pomodoro {
 	ticked() {
 		this.timerCountdownInMs -= this.TICK_IN_MS;
 		if (this.timerCountdownInMs < 1) {
-			transitionState();
+			this.transitionState();
 			return;
 		}
 		this.ticking = setTimeout(this.ticked.bind(this), this.TICK_IN_MS);
